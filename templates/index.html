@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Role Playing Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #F0F8FF;
+            font-family: "Arial", sans-serif;
+        }
+        .button {
+            width: 200px;
+            height: 50px;
+            margin: 10px;
+            background-color: #fcfaa4;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            cursor: pointer;
+            background-color: #f7f58c;
+        }
+        #chat-container {
+            width: 500px;
+            height: 300px;
+            border: 2px solid #cccccc;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            display: none;
+            background-color: #ffffff;
+            border-radius: 5px;
+        }
+        #input-area {
+            width: 500px;
+            height: 50px;
+            display: none;
+            padding: 5px;
+            font-size: 1.1em;
+            margin-bottom: 20px; // 입력칸 하단에 마진 추가
+        }
+        #game-image-container {
+            width: 512px;
+            height: 512px;
+            overflow: hidden;
+            display: none;
+            border: 2px solid #cccccc;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+        }
+        #game-image {
+            width: 100%;
+            height: 100%;
+            transition: opacity 2s;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Role Playing Game</h1>
+    <div id="button-container">
+        <button class="button" onclick="startGame()">무인도 생존</button>
+        <button class="button" disabled>아직 제작 중입니다</button>
+        <button class="button" disabled>아직 제작 중입니다</button>
+    </div>
+    <div id="game-image-container">
+        <img id="game-image" src="/static/survival.png" alt="Survival Game Image">
+    </div>
+    <div id="chat-container">
+        <!-- 여기에 채팅 메시지가 추가됩니다. -->
+    </div>
+    <textarea id="input-area" placeholder="여기에 텍스트를 입력하세요."></textarea>
+
+    <script>
+        var chatContainer = document.getElementById('chat-container');
+        var inputArea = document.getElementById('input-area');
+        var messages = [
+            '당신은 지금 바다 한 가운데에 있는 무인도에서 정신을 차렸습니다.',
+            '당신은 이곳에서 살아남아, 탈출하는 것이 목적입니다.',
+            '무엇을 할지 입력해주세요.'
+        ];
+        var afterUserInputMessages = [
+            '눈 앞에는 푸른 바다가 펼쳐져 있고, 뒤에는 숲이 이루어져 있습니다.',
+            '좌우로는 모래사장이 이어져 있으며, 주변에는 당신과 함께 떠밀려온 물건들이 흩어져 있습니다.'
+        ];
+        var messageIndex = 0;
+        var isWaitingForUserInput = false;
+
+        function addChatMessage(sender, message) {
+            var messageElement = document.createElement('p');
+            messageElement.textContent = '[' + sender + '] : ' + message;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // 채팅창을 맨 아래로 스크롤합니다.
+        }
+
+        function startGame() {
+            document.getElementById('button-container').style.display = 'none';
+            var gameImageContainer = document.getElementById('game-image-container');
+            gameImageContainer.style.display = 'block';
+            chatContainer.style.display = 'block'; // 채팅창을 보이게 합니다.
+            inputArea.style.display = 'block'; // 사용자 입력 칸을 보이게 합니다.
+            setTimeout(function() {
+                gameImageContainer.style.opacity = '1';
+            }, 100);
+            addNextMessage();
+        }
+
+        function addNextMessage() {
+            if (messageIndex < messages.length) {
+                addChatMessage('안내자', messages[messageIndex]);
+                messageIndex++;
+                if (messageIndex === messages.length) {
+                    isWaitingForUserInput = true; // 사용자 입력을 기다리도록 설정합니다.
+                } else {
+                    setTimeout(addNextMessage, 2000); // 2초 후에 다음 메시지를 추가합니다.
+                }
+            } else if (!isWaitingForUserInput && messageIndex < messages.length + afterUserInputMessages.length) {
+                addChatMessage('안내자', afterUserInputMessages[messageIndex - messages.length]);
+                messageIndex++;
+                setTimeout(addNextMessage, 2000); // 2초 후에 다음 메시지를 추가합니다.
+            }
+        }
+
+        // 사용자가 텍스트를 입력하고 엔터를 누르면 사용자의 메시지를 체팅창에 추가하고, 2초 후에 새로운 메시지들을 추가합니다.
+        inputArea.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && isWaitingForUserInput) {
+                event.preventDefault();
+                var message = inputArea.value;
+                inputArea.value = '';
+                addChatMessage('당신', message);
+                isWaitingForUserInput = false; // 사용자 입력을 기다리지 않도록 설정합니다.
+                setTimeout(addNextMessage, 2000); // 2초 후에 새로운 메시지들을 추가합니다.
+            }
+        });
+    </script>
+</body>
+</html>
